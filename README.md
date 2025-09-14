@@ -3,8 +3,6 @@
 Генератор чек-листов на Python.  
 Проект использует **Python 3.12+**, [pydantic](https://docs.pydantic.dev/) и [xlsxwriter](https://xlsxwriter.readthedocs.io/).
 
----
-
 ## 🚀 Установка на Windows
 
 ### 1. Установка Python
@@ -53,7 +51,6 @@ uv run python main.py
 uv run pytest
 ```
 
----
 
 ## 🧹 Линтинг и форматирование
 
