@@ -15,7 +15,7 @@ class Pair(BaseModel):
 
 
 class People(BaseModel):
-    people: dict[UUID, Person] = Field(..., title="People DB")
+    people_mapping: dict[UUID, Person] = Field(..., title="People DB")
     pairs: dict[UUID, Pair] = Field(..., title="Pair DB")
     pairs_by_person: dict[UUID, Pair] | None = Field(
         None, title="Pair By Person ID mapping"
@@ -29,7 +29,7 @@ class People(BaseModel):
         self.pairs_by_person = pairs_by_person
 
     def get_person(self, id: UUID) -> Person:
-        return self.people[id]
+        return self.people_mapping[id]
 
     def get_pair(self, id: UUID) -> Pair:
         return self.pairs[id]
@@ -54,7 +54,7 @@ class People(BaseModel):
         )
 
     def count(self):
-        return len(self.people.keys())
+        return len(self.people_mapping.keys())
 
 
 def get_people_from_input(input_str: str) -> People:
@@ -73,4 +73,4 @@ def get_people_from_input(input_str: str) -> People:
         else:
             person = Person(name=raw_person)
             people[person.id] = person
-    return People(people=people, pairs=pairs)
+    return People(people_mapping=people, pairs=pairs)

@@ -1,6 +1,5 @@
 from pathlib import Path
 
-from xlsxwriter import Workbook
 from xlsxwriter.format import Format
 from xlsxwriter.worksheet import Worksheet
 
@@ -106,7 +105,7 @@ class BillWorkBookGenerator:
 
         ws = self.wb.add_worksheet("Свод")
 
-        for person in self.people.people.values():
+        for person in self.people.people_mapping.values():
             self.generate_personal_sheet(person)
         self.generate_total_sheet(ws)
 
@@ -135,7 +134,7 @@ class BillWorkBookGenerator:
             2, 0, self.people.count() + 2, 0, "КТО", self.bold_rotated_format
         )
 
-        for i, i_person in enumerate(self.people.people.values()):
+        for i, i_person in enumerate(self.people.people_mapping.values()):
             ws.write(2, 2 + i, i_person.name, self.header_format)
             ws.write(3 + i, 1, i_person.name, self.get_ok_format(i))
 
@@ -148,6 +147,9 @@ class BillWorkBookGenerator:
 
     def fill_calculated_table(self, ws: Worksheet):
         """Заполнение таблицы Чеки"""
+
+        # фикс, что слово Поделено не влезает в колонку
+        ws.set_column("C:C", width=11)
 
         ws.merge_range(
             2 + self.people.count() + 2,
@@ -162,7 +164,7 @@ class BillWorkBookGenerator:
         ws.write_string(2 + self.people.count() + 3, 3, "Осталось", self.header_format)
 
         last_bill_column = self.number_to_column_name(3 + self.people.count())
-        for i, i_person in enumerate(self.people.people.values()):
+        for i, i_person in enumerate(self.people.people_mapping.values()):
             row = 2 + self.people.count() + 4 + i
 
             ws.write_string(row, 0, i_person.name, self.default_format)
@@ -209,7 +211,7 @@ class BillWorkBookGenerator:
     def fill_common_cells(self, ws: Worksheet, i: int, i_person: Person):
         """Заполнение ячеек таблицы Кто/Кому для стандартных случаев"""
 
-        for j, j_person in enumerate(self.people.people.values()):
+        for j, j_person in enumerate(self.people.people_mapping.values()):
             if j < i:
                 continue
             if i == j:
@@ -248,7 +250,7 @@ class BillWorkBookGenerator:
         first_bill_col = self.number_to_column_name(3 + i + 1)
         second_bill_col = self.number_to_column_name(3 + i + 1 + 1)
         second_person = self.people.get_second_from_pair(i_person.id)
-        for j, j_person in enumerate(self.people.people.values()):
+        for j, j_person in enumerate(self.people.people_mapping.values()):
             if i == j:
                 ws.merge_range(
                     3 + i, 2 + i, 3 + i + 1, 2 + i + 1, "-", self.get_ok_format(i)
@@ -304,7 +306,7 @@ class BillWorkBookGenerator:
         ws.set_column("A:A", width=20)
         ws.write(0, 1, "Цена", self.header_format)
 
-        for i, i_person in enumerate(self.people.people.values()):
+        for i, i_person in enumerate(self.people.people_mapping.values()):
             ws.write(0, i + 3, i_person.name, self.header_format)
             ws.write(
                 0, i + 3 + self.people.count() + 2, i_person.name, self.header_format
@@ -313,7 +315,7 @@ class BillWorkBookGenerator:
     def fill_formulas_for_personal_sheet(self, ws: Worksheet) -> None:
         """Заполнение формул в таблице персонального листа"""
 
-        for i, i_person in enumerate(self.people.people.values()):
+        for i, i_person in enumerate(self.people.people_mapping.values()):
             cost_column = 1
             bill_column = 3 + i
             last_bill_column = 3 + self.people.count() - 1

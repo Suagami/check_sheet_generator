@@ -18,7 +18,7 @@ def pair() -> Pair:
 @pytest.fixture
 def people(person: Person, pair: Pair) -> People:
     return People(
-        people={
+        people_mapping={
             person.id: person,
             pair.first.id: pair.first,
             pair.second.id: pair.second,
